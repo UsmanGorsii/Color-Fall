@@ -2,96 +2,260 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlatformGenerator : MonoBehaviour {
-    public Transform platformGenerationPoint;
-    private float platformWidth;
+public class PlatformGenerator : MonoBehaviour
+{
+    [System.Serializable]
+    public class CustomColor
+    {
+        public string name;
+        public Color color;
 
-    private float distanceBetweenPlatform;
-    public float platformDistanceBetweenMin;
-    public float platformDistanceBetweenMax;
-
-    private int platformSelector;
-    private float[] platformWidths;
-
-    public ObjectPooler[] platformPools;
-
-    private float minHeight;
-    public Transform maxHeightPoint;
-    private float maxHeight;
-
-    public float maxHeightChange;
-    private float heightChange;
-
-    private DiamondsGenerator diamondsGenerator;
-    public float diamondsGenerateThreshold;
-
-    // Spike
-    public float spikeGenerateThreshold;
-
-    public ObjectPooler spikePooler;
-
-    public int powerUpHeight;
-    public float powerUpAppearThreshold;
-    public ObjectPooler powerUpPooler;
-
-    // Use this for initialization
-    void Start() {
-        platformWidths = new float[platformPools.Length];
-        for (int i = 0; i < platformPools.Length; i++) {
-            platformWidths[i] = platformPools[i].pooledObject.GetComponent<BoxCollider2D>().size.x;
+        public CustomColor(string name, Color color)
+        {
+            this.name = name;
+            this.color = color;
         }
 
-        minHeight = transform.position.y; // same as PlatformGenerator's Height
-        maxHeight = maxHeightPoint.position.y;
+        public bool Equals(CustomColor customColor)
+        {
+            return name.Equals(customColor.name);
+        }
+    }
+    [System.Serializable]
+    public class TilesSettings
+    {
+        public CustomColor[] unitTileTypes;
+        public CustomColor playerColor;
+    }
+    public TilesSettings tilesSettings;
 
-        diamondsGenerator = FindObjectOfType<DiamondsGenerator>();
+    [System.Serializable]
+    public class PlatformSettings
+    {
+        public GameObject platform;
+        public Transform platformGenerationPoint;
+        public float platformScale;
+        public Transform platformBucket;
+        // [Tooltip("Index of selected pooled platform")]
+        int platformIndex;
+        public int PlatformIndex
+        {
+            get { return platformIndex++ % pooledPlatformsCount; }
+            set { platformIndex = value; }
+        }
+        public int pooledPlatformsCount;
+
+        [Header("Size Settings")]
+        [Tooltip("Maximum number of unit tiles used in one platform")]
+        [Range(5, 10)] public int platformMaxSize;
+        [Tooltip("Minimum number of unit tiles used in one platform")]
+        [Range(1, 4)] public int platformMinSize;
+
+        [Header("Height Settings")]
+        public int minHeight;
+        public int maxHeight;
+        public int maxHeightChange;
+
+        [Header("Distance Settings")]
+        public float minDistance;
+        public float maxDistance;
+        public float maxDistanceChange;
+        public int GetPlatformSize()
+        {
+            return Random.Range(platformMinSize, platformMaxSize);
+        }
+
+        public int GetPlatformHeight(int prevHeight)
+        {
+            return Random.Range
+            (
+                prevHeight - maxHeightChange < minHeight ? minHeight : prevHeight - maxHeightChange,
+                prevHeight + maxHeightChange > maxHeight ? maxHeight : prevHeight + maxHeightChange
+            );
+        }
+
+        public void PoolPlatforms()
+        {
+            for (int i = 0; i < pooledPlatformsCount; i++)
+            {
+                Instantiate(platform, Vector3.zero, Quaternion.identity).transform.parent = platformBucket;
+            }
+        }
+    }
+    [Space]
+    public PlatformSettings platformSettings;
+    [Space]
+
+    public bool testGeneratePlatform;
+
+    #region Variables
+    ///<summary>Last Player Platform X (of player's color)</summary>
+    public Vector2 LPP;
+    ///<summary>Last Normal Platform X,Y (of other colors)</summary>
+    public Vector2 LNP;
+    ///<summary>Generation point of new platform in X axis</summary>
+    float GP = 0;
+    ///<summary>Generate Required Plaform (between the span when GP has passed the limit to create atleast one Player color platform)</summary>
+    bool GRP;
+    ///<summary>Create player color platform</summary>
+    bool CPCP;
+    float distance;
+    int platformSize = 0;
+    public bool startGame;
+    #endregion
+
+    public GameObject LPP_G, LNP_G;
+    public float gameSpeed = 1;
+    public bool changeGameSpeed;
+    void Start()
+    {
+        // LPP = LNP = new Vector2(3, -1);
+        platformSettings.PoolPlatforms();
     }
 
-    // Update is called once per frame
-    void Update() {
-        if (transform.position.x < platformGenerationPoint.position.x) {
-            platformSelector = Random.Range(0, platformPools.Length);
-
-            distanceBetweenPlatform = Random.Range(platformDistanceBetweenMin, platformDistanceBetweenMax);
-            transform.position = new Vector3(transform.position.x + (platformWidths[platformSelector] / 2) + distanceBetweenPlatform, transform.position.y, transform.position.z);
-
-            heightChange = transform.position.y + Random.Range(-maxHeightChange, maxHeightChange);
-            if (heightChange > maxHeight) {
-                heightChange = maxHeight;
-            } else if (heightChange < minHeight) {
-                heightChange = minHeight;
-            }
-
-            if (Random.Range(0f, 100f) < powerUpAppearThreshold) {
-                GameObject newPowerUp = powerUpPooler.GetPoolObject();
-                newPowerUp.transform.position = transform.position + new Vector3((platformWidths[platformSelector] / 2) + (distanceBetweenPlatform / 2), Random.Range(powerUpHeight / 2, powerUpHeight), 0f);
-                newPowerUp.transform.rotation = transform.rotation;
-                newPowerUp.SetActive(true);
-            }
-
-            GameObject newPlatform = platformPools[platformSelector].GetPoolObject();
-            newPlatform.transform.position = transform.position;
-            newPlatform.transform.rotation = transform.rotation;
-            newPlatform.SetActive(true);
-
-            if (Random.Range(0f, 100f) < diamondsGenerateThreshold) {
-				if (diamondsGenerator) {
-					diamondsGenerator.SpawnDiamonds(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z));
-				}
-            }
-
-            if (Random.Range(0f, 100f) < spikeGenerateThreshold) {
-                GameObject newSpike = spikePooler.GetPoolObject();
-                float currentPlatformWidth = platformWidths[platformSelector];
-                float newSpikeXPosition = Random.Range(((currentPlatformWidth / 2) * -1) + 1f, (currentPlatformWidth / 2) - 1f);
-                Vector3 newPosition = new Vector3(newSpikeXPosition, .5f, 0f);
-                newSpike.transform.position = transform.position + newPosition;
-                newSpike.transform.rotation = transform.rotation;
-                newSpike.SetActive(true);
-            }
-
-            // Adjust the gap's size. move the platform generator to end of platform.
-            transform.position = new Vector3(transform.position.x + (platformWidths[platformSelector] / 2), heightChange, transform.position.z);
+    void Update()
+    {
+        if (testGeneratePlatform)
+        {
+            testGeneratePlatform = false;
+            GenerateTile(new CustomColor("White", Color.white), platformSettings.GetPlatformSize());
         }
+        LPP_G.transform.position = new Vector3(LPP.x, LPP_G.transform.position.y, 1);
+        LNP_G.transform.position = new Vector3(LNP.x, LNP.y, 1);
+        if(!startGame)
+            return;
+
+        if(changeGameSpeed)
+        {
+            changeGameSpeed = false;
+            Time.timeScale = gameSpeed;
+        }
+
+        GP = platformSettings.platformGenerationPoint.position.x;
+        Debug.Log(GP);
+
+        distance = Distance(-LPP.x, -GP);
+        
+
+        // If GP is in between max and min distance from LPP
+        if (platformSettings.maxDistance > distance && distance > platformSettings.minDistance)
+        {
+            GRP = true;
+            platformSize = platformSettings.GetPlatformSize();
+
+            print("Distance(LPP, GP): " + distance);
+            print("Distance(GP, LNP): " + Distance(GP, LNP.x));
+            print("platformSize: " + platformSize);            
+            print(platformSize * platformSettings.platformScale + " < " + (platformSettings.maxDistance - GP + LPP.x));
+           
+
+            if (platformSize * platformSettings.platformScale <= platformSettings.maxDistance - (GP - LPP.x))
+            {
+                if (Distance(GP, LNP.x) >= platformSettings.minDistance)
+                {
+                    int selectedColorIndex = Random.Range(0, tilesSettings.unitTileTypes.Length - 1);
+
+                    if (tilesSettings.unitTileTypes[selectedColorIndex].name.Equals(tilesSettings.playerColor.name))
+                    {
+                        print("Player color platform generated.");
+                        CPCP = false;
+                        Vector3 plafotmPosition = GenerateTile
+                        (
+                            tilesSettings.playerColor,
+                            platformSize
+                        ).position;
+                        LNP.x = LPP.x = plafotmPosition.x + platformSize * platformSettings.platformScale;
+                        LNP.y = LPP.y = plafotmPosition.y;
+                    }
+                    else
+                    {
+                        CPCP = true;
+                        Vector3 plafotmPosition = GenerateTile
+                        (
+                            tilesSettings.unitTileTypes[selectedColorIndex],
+                            platformSize
+                        ).position;
+                        LNP.x = plafotmPosition.x + platformSize * platformSettings.platformScale;
+                        LNP.y = plafotmPosition.y;
+                    }
+                }
+            }
+             print("CPCP: " + CPCP);
+        }
+        else if (GRP)
+        {
+            GRP = false;
+            if (true)
+            {
+                platformSize = platformSettings.GetPlatformSize();
+                Vector3 plafotmPosition = GenerateTile
+                (
+                    tilesSettings.playerColor,
+                    platformSize,
+                    platformSettings.minDistance - platformSettings.platformGenerationPoint.position.x + LNP.x
+                ).position;
+
+                LNP.x = LPP.x = plafotmPosition.x + platformSize * platformSettings.platformScale;
+                LNP.y = LPP.y = plafotmPosition.y;
+                print("LPP: " + LPP);
+            }
+            else
+            {
+                platformSize = platformSettings.GetPlatformSize();
+                int selectedColorIndex;
+                // Try to select color until it is different from player color
+                do
+                {
+                    selectedColorIndex = Random.Range(0, tilesSettings.unitTileTypes.Length - 1);
+                } while (tilesSettings.unitTileTypes[selectedColorIndex].Equals(tilesSettings.playerColor));
+                 
+
+                LNP.x = GenerateTile
+                (
+                    tilesSettings.unitTileTypes[selectedColorIndex],
+                    platformSize,
+                    platformSettings.minDistance - platformSettings.platformGenerationPoint.position.x + LNP.x
+                ).position.x + platformSize * platformSettings.platformScale;
+
+                print("LNP: " + LNP);
+            }
+        }
+        print("--------------------------------------------");
+    }
+
+    public Transform GenerateTile(CustomColor customColor, int platformSize, float x = 0)
+    {
+        int platformHeight = platformSettings.GetPlatformHeight((int)LNP.y);
+
+        Transform platform = platformSettings.platformBucket.GetChild(platformSettings.PlatformIndex);
+
+        platform.position = new Vector3
+        (
+            platformSettings.platformGenerationPoint.position.x + x,
+            platformHeight,
+            0
+        );
+        platform.parent = platformSettings.platformBucket;
+        platform.localScale = new Vector3(platformSettings.platformScale, platformSettings.platformScale, 1);
+
+        for (int i = 0; i < 10; i++)
+        {
+            if (i < platformSize)
+            {
+                platform.GetChild(i).gameObject.SetActive(true);
+                platform.GetChild(i).gameObject.GetComponent<SpriteRenderer>().color = customColor.color;
+                platform.GetChild(i).gameObject.tag = customColor.name;
+            }
+            else if(platform.GetChild(i).gameObject.activeInHierarchy)
+                platform.GetChild(i).gameObject.SetActive(false);
+            else break;
+        }
+
+        return platform.transform;
+    }
+
+    float Distance(float from, float to)
+    {
+        return from - to;
     }
 }

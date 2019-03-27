@@ -132,7 +132,7 @@ public class PlayerController : MonoBehaviour
 		yield return new WaitForSeconds (2);
 		this.GetComponent<BoxCollider2D> ().enabled = true;
 		isDead = false;
-		gameManager.RestartGame();
+        // gameManager.RestartGame();
 		moveSpeed = moveSpeedOrigin;
 		speedMilestoneCounts = speedMilestoneCountsOrigin;
 		speedIncreaseMilestone = speedIncreaseMilestoneOrigin;

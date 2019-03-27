@@ -5,6 +5,13 @@ TagManager:
   serializedVersion: 2
   tags:
   - KillBox
+  - Green
+  - Yellow
+  - Blue
+  - Red
+  - Orange
+  - Indigo
+  - Violet
   layers:
   - Default
   - TransparentFX
