@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : MonoBehaviour
+{
 
     public Transform platformGenerator;
     private Vector3 platformGeneratorStartPoint;
@@ -16,40 +18,43 @@ public class GameManager : MonoBehaviour {
     private PowerUpManager powerUpManager;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         platformGeneratorStartPoint = platformGenerator.position;
         playerStartPoint = playerController.transform.position;
         powerUpManager = FindObjectOfType<PowerUpManager>();
         scoreManager = FindObjectOfType<ScoreManager>();
     }
 
-    public void RestartGame() {
-		if(scoreManager)
-        	scoreManager.scoreIncreasing = false;
-        
-		playerController.gameObject.SetActive(false);
+    public void RestartGame()
+    {
+        if (scoreManager)
+            scoreManager.scoreIncreasing = false;
+
+        playerController.gameObject.SetActive(false);
         deathMenu.gameObject.SetActive(true);
     }
 
-    public void ResetGame() {
-        
-		if (powerUpManager) {
-			powerUpManager.InActivePowerUpMode();
-		}
-        
-		deathMenu.gameObject.SetActive(false);
-//        objectDestroyers = FindObjectsOfType<ObjectDestroyer>();
-//        for (int i = 0; i < objectDestroyers.Length; i++) {
-//            objectDestroyers[i].gameObject.SetActive(false);
-//        }
+    public void ResetGame()
+    {
+        SceneManager.LoadScene("GamePlay");
+        // 		if (powerUpManager) {
+        // 			powerUpManager.InActivePowerUpMode();
+        // 		}
 
-        playerController.transform.position = playerStartPoint;
-        platformGenerator.position = platformGeneratorStartPoint;
-        playerController.gameObject.SetActive(true);
-		if (scoreManager) {
-			scoreManager.scoreCounts = 0;
-			scoreManager.scoreIncreasing = true;
-		}
-        
+        // 		deathMenu.gameObject.SetActive(false);
+        // //        objectDestroyers = FindObjectsOfType<ObjectDestroyer>();
+        // //        for (int i = 0; i < objectDestroyers.Length; i++) {
+        // //            objectDestroyers[i].gameObject.SetActive(false);
+        // //        }
+
+        //         playerController.transform.position = playerStartPoint;
+        //         platformGenerator.position = platformGeneratorStartPoint;
+        //         playerController.gameObject.SetActive(true);
+        // 		if (scoreManager) {
+        // 			scoreManager.scoreCounts = 0;
+        // 			scoreManager.scoreIncreasing = true;
+        // 		}
+
     }
 }

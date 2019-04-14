@@ -61,8 +61,8 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1045721557594830}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 9.3, y: -2.2, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4116725703412720}
@@ -80,25 +80,62 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41259bdcd253847b68006ea206428075, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platformGenerationPoint: {fileID: 0}
-  platformDistanceBetweenMin: 0.5
-  platformDistanceBetweenMax: 1.5
-  platformPools:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  maxHeightPoint: {fileID: 4116725703412720}
-  maxHeightChange: 2.5
-  diamondsGenerateThreshold: 0
-  spikeGenerateThreshold: 0
-  spikePooler: {fileID: 0}
-  powerUpHeight: 0
-  powerUpAppearThreshold: 0
-  powerUpPooler: {fileID: 0}
+  tilesSettings:
+    unitTileTypes:
+    - name: Blue
+      color: {r: 0.019607844, g: 0.9843138, b: 0.9921569, a: 1}
+    - name: Yellow
+      color: {r: 1, g: 1, b: 0.003921569, a: 1}
+    - name: Green
+      color: {r: 0.003921569, g: 1, b: 0.007843138, a: 1}
+    - name: Orange
+      color: {r: 0.99607843, g: 0.6652815, b: 0.007843133, a: 1}
+    - name: Violet
+      color: {r: 0.6901961, g: 0, b: 1, a: 1}
+    - name: Indigo
+      color: {r: 0, g: 0, b: 0.9960785, a: 1}
+    - name: Red
+      color: {r: 0.9960785, g: 0, b: 0.007843138, a: 1}
+    - name: Silver
+      color: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 1}
+    - name: Purple
+      color: {r: 0.32390192, g: 0, b: 0.7169812, a: 1}
+    - name: White
+      color: {r: 1, g: 1, b: 1, a: 1}
+    - name: Pink
+      color: {r: 0.9245283, g: 0.3794055, b: 0.82184887, a: 1}
+    - name: Brown
+      color: {r: 0.6037736, g: 0.25378188, b: 0.025631888, a: 1}
+    - name: Mehndi
+      color: {r: 0.28742233, g: 0.3679245, b: 0.12322001, a: 1}
+    - name: SeaGreen
+      color: {r: 0, g: 0.5471698, b: 0.47828868, a: 1}
+  platformSettings:
+    platform: {fileID: 1197716876608528, guid: 305e79514e21653459a9c7c76b4ddf15, type: 2}
+    platformGenerationPoint: {fileID: 0}
+    platformScale: 0.7
+    platformBucket: {fileID: 0}
+    platformIndex: 0
+    pooledPlatformsCount: 10
+    platformMaxSize: 9
+    platformMinSize: 4
+    minHeight: -3
+    maxHeight: 1
+    maxHeightChange: 2
+    minDistance: 1
+    maxDistance: 7
+    maxDistanceChange: 0
+    NPCPG: 0
+    minPlaforms: 15
+    maxPlaforms: 20
+    GCCA: 0
+    colorChanger: {fileID: 0}
+  testGeneratePlatform: 0
+  LPP: {x: 10, y: -1}
+  LNP: {x: 10, y: -1}
+  startGame: 1
+  playerController: {fileID: 0}
+  LPP_G: {fileID: 0}
+  LNP_G: {fileID: 0}
+  gameSpeed: 1
+  changeGameSpeed: 0

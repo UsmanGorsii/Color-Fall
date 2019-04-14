@@ -9,6 +9,7 @@ public class ScoreManager : MonoBehaviour {
     public float scoreCounts, highScoreCounts, pointPerSecond;
     public bool scoreIncreasing;
     public bool coinDoublePoints;
+    public bool stopScore;
 	
     // Use this for initialization
     void Start() {
@@ -19,6 +20,9 @@ public class ScoreManager : MonoBehaviour {
 	
     // Update is called once per frame
     void Update () {
+        if(stopScore)
+            return;
+
         if (scoreIncreasing) {
             scoreCounts += pointPerSecond * Time.deltaTime;
         }
