@@ -12,6 +12,15 @@ TagManager:
   - Orange
   - Indigo
   - Violet
+  - Cyan
+  - Silver
+  - Purple
+  - White
+  - Pink
+  - Brown
+  - Mehndi
+  - SeaGreen
+  - LightBlue
   layers:
   - Default
   - TransparentFX
